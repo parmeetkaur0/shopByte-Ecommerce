@@ -3,13 +3,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
- apiKey: "AIzaSyCeBbcEoshdgwmhS7BNpftzhpFzTYIsXR0",
-  authDomain: "shopbyte-ecommerce.firebaseapp.com",
-  projectId: "shopbyte-ecommerce",
-  storageBucket: "ad-detection-a8205.firebasestorage.app",
-  messagingSenderId: "638053861414",
-  appId: "1:638053861414:web:3b0d4bb666c6479926bee7",
-  measurementId: "G-F201YC0V80"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 export const app = initializeApp(firebaseConfig);
