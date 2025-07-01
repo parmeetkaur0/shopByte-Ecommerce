@@ -41,8 +41,7 @@ function AuthLogin() {
     const user = result.user;
     const idToken = await user.getIdToken();
 
-    // ✅ Send token to backend
-    const response = await fetch("https://your-backend.com/api/auth/google-login", {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/google-login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
