@@ -1,4 +1,4 @@
 node_modules
 .env
 dist/
-shopbyte-ecommerce-firebase-adminsdk-fbsvc-a6784afa1a.json
+firebase-service-account.json
