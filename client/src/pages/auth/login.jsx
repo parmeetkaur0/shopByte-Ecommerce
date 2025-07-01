@@ -35,24 +35,31 @@ function AuthLogin() {
     });
   };
 
- 
-const handleGoogleLogin = async () => {
+ const handleGoogleLogin = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
+    const idToken = await user.getIdToken();
 
-    // ✅ Dispatch to Redux store
-    dispatch(
-      setUser({
-        userName: user.displayName,
-        email: user.email,
-        uid: user.uid,
-        photoURL: user.photoURL,
-      })
-    );
+    // ✅ Send token to backend
+    const response = await fetch("https://your-backend.com/api/auth/google-login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // if you're using cookies for auth
+      body: JSON.stringify({ idToken }),
+    });
 
-    toast({ title: `Welcome ${user.displayName}!` });
-    navigate("/shop/home");
+    const data = await response.json();
+
+    if (data.success) {
+      dispatch(setUser(data.user));
+      toast({ title: `Welcome ${user.displayName}!` });
+      navigate("/shop/home");
+    } else {
+      throw new Error(data.message);
+    }
   } catch (error) {
     toast({
       title: "Google Sign-In Failed",

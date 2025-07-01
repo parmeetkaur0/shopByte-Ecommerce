@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const admin = require("../../firebase.admin"); ;
 const User = require("../../models/User");
 
 //register
@@ -87,6 +88,32 @@ const loginUser = async (req, res) => {
   }
 };
 
+const googleLogin = async (req, res) => {
+  const { idToken } = req.body;
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const { email, name, uid } = decodedToken;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        email,
+        name,
+        firebaseUid: uid,
+        // Add more fields as needed
+      });
+    }
+
+    // Optional: Set a session cookie or JWT
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    console.error("Google login error:", error);
+    res.status(401).json({ success: false, message: "Unauthorized" });
+  }
+};
+
 //logout
 
 const logoutUser = (req, res) => {
@@ -117,4 +144,4 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-module.exports = { registerUser, loginUser, logoutUser, authMiddleware };
+module.exports = { registerUser, loginUser, logoutUser, authMiddleware , googleLogin };
