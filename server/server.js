@@ -4,6 +4,11 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require('dotenv').config(); // Load environment variables
 
+const allowedOrigins = [
+  "http://localhost:5173", // dev
+  "https://shop-byte-ecommerce.vercel.app/", // replace with your deployed frontend URL
+];
+
 const authRouter = require("./routes/auth/auth-routes");
 const adminProductsRouter = require("./routes/admin/products-routes");
 const adminOrderRouter = require("./routes/admin/order-routes");
@@ -25,18 +30,20 @@ connectDB();
 // ✅ Middleware
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "DELETE", "PUT"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Cache-Control",
-      "Expires",
-      "Pragma",
-    ],
     credentials: true,
   })
 );
+
 app.use(cookieParser());
 app.use(express.json());
 
