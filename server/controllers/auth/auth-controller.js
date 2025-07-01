@@ -99,8 +99,8 @@ const googleLogin = async (req, res) => {
 
     if (!user) {
       user = await User.create({
+        username: name ,
         email,
-        name,
         firebaseUid: uid,
         // Add more fields as needed
       });
