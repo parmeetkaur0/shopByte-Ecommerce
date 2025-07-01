@@ -2,11 +2,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-require('dotenv').config(); // Load environment variables
+require('dotenv').config(); 
 
 const allowedOrigins = [
-  "http://localhost:5173", // dev
-  "https://shop-byte-ecommerce.vercel.app/", // replace with your deployed frontend URL
+  "http://localhost:5173", 
+  "https://shop-byte-ecommerce.vercel.app", 
 ];
 
 const authRouter = require("./routes/auth/auth-routes");
@@ -24,21 +24,18 @@ const commonFeatureRouter = require("./routes/common/feature-routes");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Connect to MongoDB
 connectDB();
 
-// ✅ Middleware
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("Not allowed by CORS"));
-      }
-    },
+  if (!origin || allowedOrigins.includes(origin)) {
+    callback(null, true);
+  } else {
+    console.log("Blocked CORS request from origin:", origin);
+    callback(new Error("Not allowed by CORS"));
+  }
+},
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })
@@ -48,7 +45,6 @@ app.options("*", cors());
 app.use(cookieParser());
 app.use(express.json());
 
-// ✅ Routes
 app.use("/api/auth", authRouter);
 app.use("/api/admin/products", adminProductsRouter);
 app.use("/api/admin/orders", adminOrderRouter);
@@ -60,5 +56,4 @@ app.use("/api/shop/search", shopSearchRouter);
 app.use("/api/shop/review", shopReviewRouter);
 app.use("/api/common/feature", commonFeatureRouter);
 
-// ✅ Start server
 app.listen(PORT, () => console.log(`Server is now running on port ${PORT}`));
