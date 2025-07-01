@@ -23,10 +23,14 @@ function AuthLogin() {
   const onSubmit = (event) => {
     event.preventDefault();
     dispatch(loginUser(formData)).then((data) => {
-      if (data?.payload?.success) {
-        toast({ title: data.payload.message });
-        navigate("/shop/home");
-      } else {
+     if (data?.payload?.success) {
+  toast({ title: data.payload.message });
+
+  if (typeof window !== "undefined") {
+    navigate("/shop/home");
+  }
+}
+else {
         toast({
           title: data?.payload?.message || "Login failed",
           variant: "destructive",
@@ -41,7 +45,7 @@ function AuthLogin() {
     const user = result.user;
     const idToken = await user.getIdToken();
 
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/google-login", {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/google-login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -53,10 +57,14 @@ function AuthLogin() {
     const data = await response.json();
 
     if (data.success) {
-      dispatch(setUser(data.user));
-      toast({ title: `Welcome ${user.displayName}!` });
-      navigate("/shop/home");
-    } else {
+  dispatch(setUser(data.user));
+  toast({ title: `Welcome ${user.displayName}!` });
+
+  if (typeof window !== "undefined") {
+    navigate("/shop/home");
+  }
+}
+else {
       throw new Error(data.message);
     }
   } catch (error) {
