@@ -34,13 +34,14 @@ import { useEffect, useState } from "react";
 import { fetchCartItems } from "@/store/shop/cart-slice";
 import { Label } from "../ui/label";
 
-function MenuItems({ className = "" }) {
+function MenuItems({ className = "", setOpenSheet }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   function handleNavigate(getCurrentMenuItem) {
     sessionStorage.removeItem("filters");
+
     const currentFilter =
       getCurrentMenuItem.id !== "home" &&
       getCurrentMenuItem.id !== "products" &&
@@ -52,11 +53,15 @@ function MenuItems({ className = "" }) {
 
     sessionStorage.setItem("filters", JSON.stringify(currentFilter));
 
-    location.pathname.includes("listing") && currentFilter !== null
-      ? setSearchParams(
-          new URLSearchParams(`?category=${getCurrentMenuItem.id}`)
-        )
-      : navigate(getCurrentMenuItem.path);
+    if (location.pathname.includes("listing") && currentFilter !== null) {
+      setSearchParams(
+        new URLSearchParams(`?category=${getCurrentMenuItem.id}`)
+      );
+    } else {
+      navigate(getCurrentMenuItem.path);
+    }
+
+    if (setOpenSheet) setOpenSheet(false);
   }
 
   return (
@@ -74,7 +79,7 @@ function MenuItems({ className = "" }) {
   );
 }
 
-function HeaderRightContent() {
+function HeaderRightContent({ setOpenSheet }) {
   const { user } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.shopCart);
   const [openCartSheet, setOpenCartSheet] = useState(false);
@@ -83,6 +88,7 @@ function HeaderRightContent() {
 
   function handleLogout() {
     dispatch(logoutUser());
+    if (setOpenSheet) setOpenSheet(false); // close mobile nav
   }
 
   useEffect(() => {
@@ -130,7 +136,10 @@ function HeaderRightContent() {
             Account
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => navigate("/shop/contact")}>
+          <DropdownMenuItem  onClick={() => {
+      navigate("/shop/account");
+      if (setOpenSheet) setOpenSheet(false); // close nav
+    }}>
             <HousePlug className="mr-2 h-4 w-4" />
             Contact Us
           </DropdownMenuItem>
@@ -146,19 +155,20 @@ function HeaderRightContent() {
 }
 
 function ShoppingHeader() {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+   const { isAuthenticated } = useSelector((state) => state.auth);
+  const [openSheet, setOpenSheet] = useState(false); // 👈 state lifted up
+
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b shadow-md backdrop-blur-md bg-white/80">
+     <header className="sticky top-0 z-40 w-full border-b shadow-md backdrop-blur-md bg-white/80">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         <Link to="/shop/home" className="flex items-center gap-2">
           <HousePlug className="h-6 w-6" />
           <span className="font-bold text-lg">ShopByte</span>
         </Link>
 
-        {/* Mobile Menu Toggle */}
         <div className="lg:hidden">
-          <Sheet>
+          <Sheet open={openSheet} onOpenChange={setOpenSheet}>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon">
                 <Menu className="h-6 w-6" />
@@ -166,20 +176,18 @@ function ShoppingHeader() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-full max-w-xs p-6">
-              {/* Top bar with horizontal layout */}
               <div className="flex items-center justify-between mb-6">
                 <Link to="/shop/home" className="flex items-center gap-2">
                   <HousePlug className="h-5 w-5" />
                   <span className="font-semibold text-base">ShopByte</span>
                 </Link>
-                <HeaderRightContent />
+                <HeaderRightContent setOpenSheet={setOpenSheet} />
               </div>
-              <MenuItems className="gap-4" />
+              <MenuItems setOpenSheet={setOpenSheet} className="gap-4" />
             </SheetContent>
           </Sheet>
         </div>
 
-        {/* Desktop view */}
         <div className="hidden lg:flex w-full justify-between items-center">
           <MenuItems />
           <HeaderRightContent />
