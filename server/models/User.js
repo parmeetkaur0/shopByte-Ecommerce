@@ -3,12 +3,17 @@ const mongoose = require("mongoose");
 const UserSchema = new mongoose.Schema({
   userName: {
     type: String,
-    unique: true,
+    required: true, // ✅ make it optional for Google login
   },
   email: {
     type: String,
     required: true,
     unique: true,
+  },
+  firebaseUid: {
+    type: String,
+    unique: true,
+    sparse: true,
   },
   password: {
     type: String,

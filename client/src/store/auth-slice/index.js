@@ -39,6 +39,30 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const googleLoginUser = createAsyncThunk(
+  "/auth/google-login",
+  async ({ email, displayName , idToken }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/google-login`,
+        { email, displayName, idToken },
+        {
+          withCredentials: true,
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || {
+          success: false,
+          message: "Google login failed",
+        }
+      );
+    }
+  }
+);
+
 export const logoutUser = createAsyncThunk(
   "/auth/logout",
 
@@ -78,12 +102,12 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-  setUser: (state, action) => {
-    state.user = action.payload;
-    state.isAuthenticated = true;
-    state.isLoading = false;
+    setUser: (state, action) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+      state.isLoading = false;
+    },
   },
-},
   extraReducers: (builder) => {
     builder
       .addCase(registerUser.pending, (state) => {
@@ -110,6 +134,19 @@ const authSlice = createSlice({
         state.isAuthenticated = action.payload.success;
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(googleLoginUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(googleLoginUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.success ? action.payload.user : null;
+        state.isAuthenticated = action.payload.success;
+      })
+      .addCase(googleLoginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;

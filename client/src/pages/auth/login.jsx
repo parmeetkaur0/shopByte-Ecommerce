@@ -2,11 +2,12 @@ import CommonForm from "@/components/common/form";
 import { useToast } from "@/components/ui/use-toast";
 import { loginFormControls } from "@/config";
 import { loginUser } from "@/store/auth-slice";
+import { googleLoginUser } from "@/store/auth-slice";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { auth, googleProvider } from "@/config/firebase.config";
-import { signInWithPopup } from "firebase/auth";
+import { getIdToken, signInWithPopup } from "firebase/auth";
 import { setUser } from "@/store/auth-slice/index.js"; 
 
 const initialState = {
@@ -45,27 +46,17 @@ else {
     const user = result.user;
     const idToken = await user.getIdToken();
 
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/google-login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include", // if you're using cookies for auth
-      body: JSON.stringify({ idToken }),
-    });
+    const actionResult = await dispatch(
+      googleLoginUser({ email:user.email , displayName: user.displayName , idToken})
+    );
 
-    const data = await response.json();
+    const data = actionResult.payload;
 
-    if (data.success) {
-  dispatch(setUser(data.user));
-  toast({ title: `Welcome ${user.displayName}!` });
-
-  if (typeof window !== "undefined") {
-    navigate("/shop/home");
-  }
-}
-else {
-      throw new Error(data.message);
+    if (data?.success) {
+      toast({ title: `Welcome ${user.displayName}!` });
+      navigate("/shop/home");
+    } else {
+      throw new Error(data?.message || "Google login failed");
     }
   } catch (error) {
     toast({

@@ -89,30 +89,63 @@ const loginUser = async (req, res) => {
 };
 
 const googleLogin = async (req, res) => {
-  const { idToken } = req.body;
+  const { email, displayName , idToken } = req.body;
+  console.log("Google Login Request:", req.body);
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const { email, name, uid } = decodedToken;
+    const { uid } = decodedToken;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email not found in token",
+      });
+    }
 
     let user = await User.findOne({ email });
 
     if (!user) {
+      console.log("Creating new user for Google login:", displayName, email, uid);
+
+      let nameToStore = displayName;
+     if (!nameToStore || nameToStore.trim() === "") {
+      nameToStore = email.split("@")[0]; // fallback to username from email
+      }
+
       user = await User.create({
-        username: name ,
+        userName: nameToStore,
         email,
         firebaseUid: uid,
-        // Add more fields as needed
       });
     }
 
-    // Optional: Set a session cookie or JWT
-    res.status(200).json({ success: true, user });
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+        email: user.email,
+        userName: user.userName,
+      },
+      "CLIENT_SECRET_KEY",
+      { expiresIn: "60m" }
+    );
+
+    res.cookie("token", token, { httpOnly: true, secure: false }).json({
+      success: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        userName: user.userName,
+      },
+    });
   } catch (error) {
     console.error("Google login error:", error);
     res.status(401).json({ success: false, message: "Unauthorized" });
   }
 };
+
 
 //logout
 
