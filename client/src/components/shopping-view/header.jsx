@@ -44,11 +44,11 @@ function MenuItems({ className = "", setOpenSheet }) {
 
     const currentFilter =
       getCurrentMenuItem.id !== "home" &&
-      getCurrentMenuItem.id !== "products" &&
-      getCurrentMenuItem.id !== "search"
+        getCurrentMenuItem.id !== "products" &&
+        getCurrentMenuItem.id !== "search"
         ? {
-            category: [getCurrentMenuItem.id],
-          }
+          category: [getCurrentMenuItem.id],
+        }
         : null;
 
     sessionStorage.setItem("filters", JSON.stringify(currentFilter));
@@ -131,15 +131,18 @@ function HeaderRightContent({ setOpenSheet }) {
         <DropdownMenuContent side="right" className="w-56">
           <DropdownMenuLabel>Logged in as {user?.userName}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => navigate("/shop/account")}>
+          <DropdownMenuItem onClick={() => {
+            navigate("/shop/account");
+            if (setOpenSheet) setOpenSheet(false); // close nav
+          }}>
             <UserCog className="mr-2 h-4 w-4" />
             Account
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem  onClick={() => {
-      navigate("/shop/account");
-      if (setOpenSheet) setOpenSheet(false); // close nav
-    }}>
+          <DropdownMenuItem onClick={() => {
+            navigate("/shop/contact");
+            if (setOpenSheet) setOpenSheet(false); // close nav
+          }}>
             <HousePlug className="mr-2 h-4 w-4" />
             Contact Us
           </DropdownMenuItem>
@@ -155,12 +158,12 @@ function HeaderRightContent({ setOpenSheet }) {
 }
 
 function ShoppingHeader() {
-   const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.auth);
   const [openSheet, setOpenSheet] = useState(false); // 👈 state lifted up
 
 
   return (
-     <header className="sticky top-0 z-40 w-full border-b shadow-md backdrop-blur-md bg-white/80">
+    <header className="sticky top-0 z-40 w-full border-b shadow-md backdrop-blur-md bg-white/80">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         <Link to="/shop/home" className="flex items-center gap-2">
           <HousePlug className="h-6 w-6" />
