@@ -131,9 +131,9 @@ function HeaderRightContent({ setOpenSheet }) {
         <DropdownMenuContent side="right" className="w-56">
           <DropdownMenuLabel>Logged in as {user?.userName}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => {
+         <DropdownMenuItem onClick={() => {
             navigate("/shop/account");
-            if (setOpenSheet) setOpenSheet(false); // close nav
+            if (setOpenSheet) setOpenSheet(false);
           }}>
             <UserCog className="mr-2 h-4 w-4" />
             Account
@@ -141,7 +141,7 @@ function HeaderRightContent({ setOpenSheet }) {
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => {
             navigate("/shop/contact");
-            if (setOpenSheet) setOpenSheet(false); // close nav
+            if (setOpenSheet) setOpenSheet(false); 
           }}>
             <HousePlug className="mr-2 h-4 w-4" />
             Contact Us
